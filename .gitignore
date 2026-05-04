@@ -2,6 +2,7 @@
 .DS_Store
 .idea/
 .vscode/
+.local-backups/
 
 # Python caches and environments
 __pycache__/
@@ -13,10 +14,8 @@ __pycache__/
 venv/
 env/
 
-# Training data and generated artifacts
-data/*
-!data/splits/
-!data/splits/**
+# Generated artifacts
+data/**/.git/
 checkpoints/
 runs/
 wandb/
