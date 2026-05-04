@@ -1,0 +1,3 @@
+data/Kvasir-SEG/images/cju89z6pqpqfx0817mfv8ixjc.jpg	data/Kvasir-SEG/masks/cju89z6pqpqfx0817mfv8ixjc.jpg
+data/Kvasir-SEG/images/cju3xvoo2iqlc0817eku2r3wl.jpg	data/Kvasir-SEG/masks/cju3xvoo2iqlc0817eku2r3wl.jpg
+data/Kvasir-SEG/images/cju42wamblrqn098798r2yyok.jpg	data/Kvasir-SEG/masks/cju42wamblrqn098798r2yyok.jpg

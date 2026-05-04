@@ -1,0 +1,30 @@
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Training data and generated artifacts
+data/*
+!data/splits/
+!data/splits/**
+checkpoints/
+runs/
+wandb/
+*.log
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Third-party reference clones
+references/

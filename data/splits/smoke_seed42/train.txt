@@ -1,0 +1,14 @@
+data/Kvasir-SEG/images/cju1dnz61vfp40988e78bkjga.jpg	data/Kvasir-SEG/masks/cju1dnz61vfp40988e78bkjga.jpg
+data/Kvasir-SEG/images/cju7do8c72dbo0801vxfzxdc4.jpg	data/Kvasir-SEG/masks/cju7do8c72dbo0801vxfzxdc4.jpg
+data/Kvasir-SEG/images/cju33jon3ygbj0993pu22a4k6.jpg	data/Kvasir-SEG/masks/cju33jon3ygbj0993pu22a4k6.jpg
+data/Kvasir-SEG/images/cju5eq8c8ck690850vix98hv3.jpg	data/Kvasir-SEG/masks/cju5eq8c8ck690850vix98hv3.jpg
+data/Kvasir-SEG/images/cju2qh5le1ock0878oahaql7d.jpg	data/Kvasir-SEG/masks/cju2qh5le1ock0878oahaql7d.jpg
+data/Kvasir-SEG/images/cju83nwu1jxte0987h1krpfmv.jpg	data/Kvasir-SEG/masks/cju83nwu1jxte0987h1krpfmv.jpg
+data/Kvasir-SEG/images/cju3x7xsaijq80818f0psavav.jpg	data/Kvasir-SEG/masks/cju3x7xsaijq80818f0psavav.jpg
+data/Kvasir-SEG/images/cju5yhgznmkzb0801cji2vi8j.jpg	data/Kvasir-SEG/masks/cju5yhgznmkzb0801cji2vi8j.jpg
+data/Kvasir-SEG/images/cju784jpdzeae0987q5ypq883.jpg	data/Kvasir-SEG/masks/cju784jpdzeae0987q5ypq883.jpg
+data/Kvasir-SEG/images/cju5bf6hxa6m50817rbwettgu.jpg	data/Kvasir-SEG/masks/cju5bf6hxa6m50817rbwettgu.jpg
+data/Kvasir-SEG/images/cju7dymur2od30755eg8yv2ht.jpg	data/Kvasir-SEG/masks/cju7dymur2od30755eg8yv2ht.jpg
+data/Kvasir-SEG/images/cju18ibp219ub08783i6o98g7.jpg	data/Kvasir-SEG/masks/cju18ibp219ub08783i6o98g7.jpg
+data/Kvasir-SEG/images/cju7d6ux323ze0987xos3srkx.jpg	data/Kvasir-SEG/masks/cju7d6ux323ze0987xos3srkx.jpg
+data/Kvasir-SEG/images/cju32csyfblyh080170aa3x5p.jpg	data/Kvasir-SEG/masks/cju32csyfblyh080170aa3x5p.jpg
