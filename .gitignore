@@ -16,7 +16,12 @@ env/
 
 # Generated artifacts
 data/**/.git/
-checkpoints/
+checkpoints/*
+!checkpoints/*/
+checkpoints/*/*
+!checkpoints/*/visualizations/
+!checkpoints/*/visualizations/**
+.DS_Store
 runs/
 wandb/
 *.log
