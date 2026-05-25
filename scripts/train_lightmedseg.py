@@ -40,6 +40,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--val-ratio", type=float, default=0.1)
     parser.add_argument("--test-ratio", type=float, default=0.2)
     parser.add_argument("--edge-loss-weight", type=float, default=0.2)
+    parser.add_argument("--use-lha", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--use-egff", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--use-dfc", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--train-augment", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--multi-scale", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--size-rates", type=str, default="0.75,1,1.25")
@@ -71,10 +74,10 @@ def get_device(device_name: str) -> torch.device:
     if device_name == "cpu":
         return torch.device("cpu")
 
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
     if torch.cuda.is_available():
         return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
     return torch.device("cpu")
 
 
@@ -337,10 +340,27 @@ def segmentation_metrics(logits: Tensor, targets: Tensor, eps: float = 1e-6) -> 
     }
 
 
-def build_model(variant: str) -> nn.Module:
+def build_model(
+    variant: str,
+    use_lha: bool = True,
+    use_egff: bool = True,
+    use_dfc: bool = True,
+) -> nn.Module:
     if variant == "small":
-        return lightmedseg_small(in_channels=3, num_classes=1)
-    return lightmedseg_tiny(in_channels=3, num_classes=1)
+        return lightmedseg_small(
+            in_channels=3,
+            num_classes=1,
+            use_lha=use_lha,
+            use_egff=use_egff,
+            use_dfc=use_dfc,
+        )
+    return lightmedseg_tiny(
+        in_channels=3,
+        num_classes=1,
+        use_lha=use_lha,
+        use_egff=use_egff,
+        use_dfc=use_dfc,
+    )
 
 
 def train_one_epoch(
@@ -350,6 +370,7 @@ def train_one_epoch(
     device: torch.device,
     edge_loss_weight: float,
     size_rates: list[float],
+    use_edge_loss: bool,
 ) -> float:
     model.train()
     total_loss = 0.0
@@ -369,7 +390,7 @@ def train_one_epoch(
                 raise TypeError("LightMedSeg model must return auxiliary outputs during training.")
 
             mask_loss = structure_loss(output.mask_logits, scaled_masks)
-            edge_loss = bce(output.edge_logits, edge_targets_from_masks(scaled_masks))
+            edge_loss = bce(output.edge_logits, edge_targets_from_masks(scaled_masks)) if use_edge_loss else 0.0
             loss = mask_loss + edge_loss_weight * edge_loss
 
             loss.backward()
@@ -467,7 +488,12 @@ def main() -> None:
         pin_memory=device.type == "cuda",
     )
 
-    model = build_model(args.variant).to(device)
+    model = build_model(
+        args.variant,
+        use_lha=args.use_lha,
+        use_egff=args.use_egff,
+        use_dfc=args.use_dfc,
+    ).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
 
     best_scores = {
@@ -485,10 +511,19 @@ def main() -> None:
     print(f"Train augmentation: {'enabled' if args.train_augment else 'disabled'}")
     print(f"ImageNet normalization: enabled")
     print(f"Multi-scale training: {size_rates}")
+    print(f"Modules: LHA={args.use_lha} | EGFF={args.use_egff} | DFC={args.use_dfc}")
     print("Saving best checkpoints by: val_dice and val_iou")
 
     for epoch in range(1, args.epochs + 1):
-        train_loss = train_one_epoch(model, train_loader, optimizer, device, args.edge_loss_weight, size_rates)
+        train_loss = train_one_epoch(
+            model,
+            train_loader,
+            optimizer,
+            device,
+            args.edge_loss_weight,
+            size_rates,
+            use_edge_loss=args.use_egff,
+        )
         val_metrics = validate(model, val_loader, device)
 
         print(
@@ -509,6 +544,9 @@ def main() -> None:
                         "train_augment": args.train_augment,
                         "normalize": "imagenet",
                         "size_rates": size_rates,
+                        "use_lha": args.use_lha,
+                        "use_egff": args.use_egff,
+                        "use_dfc": args.use_dfc,
                         "protocol": args.protocol,
                         "seed": args.seed,
                         "best_metric": metric_name,

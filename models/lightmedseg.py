@@ -95,11 +95,17 @@ class EdgeGuidedFeatureFusion(nn.Module):
 
 
 class UpBlock(nn.Module):
-    def __init__(self, in_channels: int, skip_channels: int, out_channels: int) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        skip_channels: int,
+        out_channels: int,
+        use_attention: bool = True,
+    ) -> None:
         super().__init__()
         self.up = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
         self.conv = DoubleConv(out_channels + skip_channels, out_channels)
-        self.attention = LightweightHybridAttention(out_channels)
+        self.attention = LightweightHybridAttention(out_channels) if use_attention else nn.Identity()
 
     def forward(self, x: Tensor, skip: Tensor) -> Tensor:
         x = self.up(x)
@@ -128,8 +134,12 @@ class LightMedSeg2D(nn.Module):
         in_channels: int = 3,
         num_classes: int = 1,
         base_channels: int = 32,
+        use_lha: bool = True,
+        use_egff: bool = True,
+        use_dfc: bool = True,
     ) -> None:
         super().__init__()
+        self.use_egff = use_egff
         c1 = base_channels
         c2 = base_channels * 2
         c3 = base_channels * 4
@@ -139,12 +149,12 @@ class LightMedSeg2D(nn.Module):
         self.down1 = DownBlock(c1, c2)
         self.down2 = DownBlock(c2, c3)
         self.down3 = DownBlock(c3, c4)
-        self.domain_calibration = DomainFeatureCalibration(c4)
+        self.domain_calibration = DomainFeatureCalibration(c4) if use_dfc else nn.Identity()
 
-        self.up3 = UpBlock(c4, c3, c3)
-        self.up2 = UpBlock(c3, c2, c2)
-        self.edge_fusion = EdgeGuidedFeatureFusion(c2)
-        self.up1 = UpBlock(c2, c1, c1)
+        self.up3 = UpBlock(c4, c3, c3, use_attention=use_lha)
+        self.up2 = UpBlock(c3, c2, c2, use_attention=use_lha)
+        self.edge_fusion = EdgeGuidedFeatureFusion(c2) if use_egff else nn.Identity()
+        self.up1 = UpBlock(c2, c1, c1, use_attention=use_lha)
 
         self.segmentation_head = nn.Conv2d(c1, num_classes, kernel_size=1)
 
@@ -158,7 +168,17 @@ class LightMedSeg2D(nn.Module):
 
         x = self.up3(bottleneck, skip3)
         x = self.up2(x, skip2)
-        x, edge_logits = self.edge_fusion(x)
+        if self.use_egff:
+            x, edge_logits = self.edge_fusion(x)
+        else:
+            edge_logits = torch.zeros(
+                x.size(0),
+                1,
+                x.size(2),
+                x.size(3),
+                device=x.device,
+                dtype=x.dtype,
+            )
         x = self.up1(x, skip1)
 
         mask_logits = self.segmentation_head(x)
@@ -171,9 +191,35 @@ class LightMedSeg2D(nn.Module):
         return mask_logits
 
 
-def lightmedseg_tiny(in_channels: int = 3, num_classes: int = 1) -> LightMedSeg2D:
-    return LightMedSeg2D(in_channels=in_channels, num_classes=num_classes, base_channels=16)
+def lightmedseg_tiny(
+    in_channels: int = 3,
+    num_classes: int = 1,
+    use_lha: bool = True,
+    use_egff: bool = True,
+    use_dfc: bool = True,
+) -> LightMedSeg2D:
+    return LightMedSeg2D(
+        in_channels=in_channels,
+        num_classes=num_classes,
+        base_channels=16,
+        use_lha=use_lha,
+        use_egff=use_egff,
+        use_dfc=use_dfc,
+    )
 
 
-def lightmedseg_small(in_channels: int = 3, num_classes: int = 1) -> LightMedSeg2D:
-    return LightMedSeg2D(in_channels=in_channels, num_classes=num_classes, base_channels=32)
+def lightmedseg_small(
+    in_channels: int = 3,
+    num_classes: int = 1,
+    use_lha: bool = True,
+    use_egff: bool = True,
+    use_dfc: bool = True,
+) -> LightMedSeg2D:
+    return LightMedSeg2D(
+        in_channels=in_channels,
+        num_classes=num_classes,
+        base_channels=32,
+        use_lha=use_lha,
+        use_egff=use_egff,
+        use_dfc=use_dfc,
+    )

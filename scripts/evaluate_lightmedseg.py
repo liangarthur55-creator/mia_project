@@ -108,7 +108,10 @@ def main() -> None:
 
     variant = checkpoint.get("variant", "tiny")
     image_size = args.image_size or int(checkpoint.get("image_size", 256))
-    model = build_model(variant)
+    use_lha = bool(checkpoint.get("use_lha", True))
+    use_egff = bool(checkpoint.get("use_egff", True))
+    use_dfc = bool(checkpoint.get("use_dfc", True))
+    model = build_model(variant, use_lha=use_lha, use_egff=use_egff, use_dfc=use_dfc)
     model.load_state_dict(checkpoint["model_state"])
     model.to(device)
 
@@ -116,6 +119,7 @@ def main() -> None:
     print(f"Device: {device}")
     print(f"Variant: {variant}")
     print(f"Image size: {image_size}")
+    print(f"Modules: LHA={use_lha} | EGFF={use_egff} | DFC={use_dfc}")
 
     datasets = build_eval_datasets(args, image_size)
     all_metrics: dict[str, dict[str, float]] = {}

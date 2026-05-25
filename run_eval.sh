@@ -22,6 +22,6 @@ fi
 conda activate "$ENV_NAME"
 
 python scripts/evaluate_lightmedseg.py \
-  --device mps \
+  --device auto \
   --batch-size 8 \
   "$@"

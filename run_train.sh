@@ -37,7 +37,7 @@ python scripts/train_lightmedseg.py \
   --output-dir "$RUN_DIR" \
   --best-metric dice \
   --variant tiny \
-  --device mps \
+  --device auto \
   --image-size 352 \
   --size-rates 0.75,1,1.25 \
   --epochs 50 \
